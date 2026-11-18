@@ -24,6 +24,9 @@ jobs:
       - name: Verificar base de datos y replicacion
         run: bash scripts/verificar.sh
 
+      - name: Ejecutar pruebas integrales
+        run: bash scripts/pruebas_integrales.sh
+
       - name: Mostrar estado final
         if: always()
         run: docker compose ps
