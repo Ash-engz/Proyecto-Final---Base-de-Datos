@@ -9,8 +9,8 @@
 **Análisis de datos:** Power BI  
 
 **Integrantes:**
-- Marcos Monzón 
-- Ashly Englenton
+- Marcos Naasón Monzón Zacarias ID: 000149995
+- Ashly Esther Englenton Zepeda ID: 000151177
 
 ---
 
