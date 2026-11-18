@@ -1,0 +1,29 @@
+
+name: Prueba automatica PostgreSQL
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verificar-proyecto:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Verificar Docker
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Instalar PostgreSQL y proyecto
+        run: bash scripts/instalar.sh
+
+      - name: Verificar base de datos y replicacion
+        run: bash scripts/verificar.sh
+
+      - name: Mostrar estado final
+        if: always()
+        run: docker compose ps
