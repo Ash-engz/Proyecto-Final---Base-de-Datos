@@ -1,0 +1,46 @@
+services:
+  postgres_primary:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configurar POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: ecommerce
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?Configurar REPLICATION_PASSWORD en .env}
+    command: ["postgres", "-c", "wal_level=replica", "-c", "max_wal_senders=10", "-c", "max_replication_slots=10", "-c", "hot_standby=on"]
+    ports:
+      - "127.0.0.1:5440:5432"
+    volumes:
+      - primary_data:/var/lib/postgresql/data
+      - ./docker/primary/init-replication.sh:/docker-entrypoint-initdb.d/10-replication.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  postgres_replica:
+    image: postgres:16
+    restart: unless-stopped
+    depends_on:
+      postgres_primary:
+        condition: service_healthy
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      PRIMARY_HOST: postgres_primary
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?Configurar REPLICATION_PASSWORD en .env}
+    entrypoint: ["bash", "/usr/local/bin/start-replica.sh"]
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - replica_data:/var/lib/postgresql/data
+      - ./docker/replica/start-replica.sh:/usr/local/bin/start-replica.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce && test -f /var/lib/postgresql/data/pgdata/standby.signal"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  primary_data:
+  replica_data:

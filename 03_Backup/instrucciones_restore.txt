@@ -1,0 +1,41 @@
+REQUERIMIENTOS 13 Y 14 - BACKUP Y RESTAURACION
+
+Ejecutar desde PowerShell en la carpeta del proyecto, con los contenedores activos.
+Para el backup, el contenedor debe tener acceso a la base ecommerce ya cargada.
+
+Backup actualizado:
+docker compose exec -T postgres_primary pg_dump -U postgres -d ecommerce -Fc > 03_Backup/backup_actual.dump
+
+Comprobar integridad estructural del archivo:
+docker compose exec -T postgres_primary pg_restore -l < 03_Backup/backup_actual.dump
+
+Consultar cantidades originales (DBeaver sobre la base ecommerce):
+SELECT COUNT(*) FROM customers;
+SELECT COUNT(*) FROM products;
+SELECT COUNT(*) FROM orders;
+
+Para no poner en peligro la base de trabajo, demostrar la restauracion en ecommerce_restore:
+docker compose exec -T postgres_primary psql -U postgres -d postgres -c "CREATE DATABASE ecommerce_restore"
+docker compose exec -T postgres_primary pg_restore -U postgres -d ecommerce_restore --no-owner --no-acl < 03_Backup/backup_actual.dump
+
+Conectar en DBeaver a ecommerce_restore y ejecutar los mismos SELECT COUNT(*).
+Verificar tambien vistas, vistas materializadas, funciones y triggers.
+
+Para simular perdida de informacion, conectar SOLO a ecommerce_restore y ejecutar:
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+Comprobar ausencia de tablas con:
+SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
+
+Restaurar nuevamente:
+docker compose exec -T postgres_primary pg_restore -U postgres -d ecommerce_restore --no-owner --no-acl < 03_Backup/backup_actual.dump
+
+Consultar nuevamente las cantidades de clientes, productos y pedidos,
+y compararlas con los valores iniciales. Nunca borrar el esquema de ecommerce.
+
+El archivo backup_original.dump es la copia incluida en el material recibido.
+Se recomienda generar backup_actual.dump despues de ejecutar todos los scripts corregidos.
+
+Nota: pg_dump no incluye roles de nivel global. Crear roles y claves de prueba
+con 07_security.sql y ALTER ROLE en la instalacion destino.
