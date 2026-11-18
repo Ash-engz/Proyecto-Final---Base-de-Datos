@@ -1,92 +1,477 @@
 # Proyecto Final - Base de Datos II
 
-## Ejecucion automatica desde GitHub
+## Universidad Panamericana
 
-Clonar este repositorio y ejecutar desde su raiz en una terminal Bash con Docker y Docker Compose V2 instalados:
+**Proyecto:** Sistema de Base de Datos para E-Commerce  
+**Motor de base de datos:** PostgreSQL 16  
+**Infraestructura:** Docker y Docker Compose  
+**Administración:** DBeaver  
+**Análisis de datos:** Power BI  
+
+**Integrantes:**
+- Marcos Monzón 
+- Ashly Englenton
+
+---
+
+## 1. Descripción del proyecto
+
+El proyecto consiste en implementar una solución de base de datos para una empresa de comercio electrónico utilizando PostgreSQL.
+
+La solución incorpora:
+
+- Auditoría de cambios de precios.
+- Control automático de inventario.
+- Historial de estados de pedidos.
+- Vistas para consultas comerciales.
+- Vistas materializadas para análisis de ventas.
+- Procedimientos almacenados y transacciones.
+- Optimización mediante índices.
+- Seguridad mediante usuarios y roles.
+- Replicación entre dos instancias PostgreSQL.
+- Respaldo y recuperación de información.
+- Dashboard gerencial en Power BI.
+
+El proyecto está preparado para ejecutarse mediante Docker y Docker Compose.
+
+---
+
+## 2. Requisitos previos
+
+Para ejecutar el proyecto se necesita:
+
+1. Git.
+2. Docker Engine o Docker Desktop.
+3. Docker Compose V2.
+4. Bash.
+5. OpenSSL.
+
+Herramientas opcionales:
+
+- DBeaver para administrar PostgreSQL.
+- Power BI Desktop para visualizar el dashboard.
+
+No es necesario instalar PostgreSQL directamente en el sistema operativo.
+
+---
+
+## 3. Clonar el repositorio
+
+Ejecutar:
 
 ```bash
 git clone https://github.com/Ash-engz/Proyecto-Final---Base-de-Datos.git
+```
+
+Ingresar al directorio:
+
+```bash
 cd Proyecto-Final---Base-de-Datos
+```
+
+---
+
+## 4. Instalación automática
+
+El proyecto incluye un script que configura el entorno y ejecuta los archivos SQL.
+
+Ejecutar:
+
+```bash
 bash scripts/instalar.sh
+```
+
+El script realiza las siguientes operaciones:
+
+1. Genera las variables de entorno necesarias.
+2. Inicia PostgreSQL principal mediante Docker.
+3. Inicia PostgreSQL réplica.
+4. Espera a que los contenedores estén disponibles.
+5. Crea las tablas de la base de datos.
+6. Carga los datos iniciales.
+7. Crea los triggers.
+8. Crea las vistas.
+9. Crea las vistas materializadas.
+10. Crea los procedimientos almacenados.
+11. Ejecuta las consultas de optimización.
+12. Crea los índices.
+13. Configura los usuarios y privilegios.
+14. Ejecuta consultas iniciales de verificación.
+
+**Importante:** la instalación debe ejecutarse sobre un entorno nuevo. No ejecutar nuevamente el instalador sobre una base de datos que ya tenga las tablas creadas.
+
+---
+
+## 5. Infraestructura Docker
+
+El proyecto utiliza dos instancias PostgreSQL.
+
+| Instancia | Puerto | Función |
+|-----------|--------|---------|
+| PostgreSQL principal | 5440 | Lectura y escritura |
+| PostgreSQL réplica | 5433 | Lectura y replicación |
+
+Ambas instancias se comunican mediante la red creada por Docker Compose.
+
+### Iniciar los contenedores manualmente
+
+Si las variables de entorno ya están configuradas:
+
+```bash
+docker compose up -d
+```
+
+### Verificar los contenedores
+
+```bash
+docker compose ps
+```
+
+Los contenedores deben aparecer activos y saludables.
+
+### Detener la infraestructura
+
+```bash
+docker compose down
+```
+
+Este comando detiene los contenedores sin eliminar los volúmenes persistentes.
+
+---
+
+## 6. Configuración de variables de entorno
+
+El repositorio contiene:
+
+```text
+.env.example
+```
+
+Si se realiza la instalación manual, copiarlo como:
+
+```text
+.env
+```
+
+Configurar las variables:
+
+```text
+POSTGRES_PASSWORD=CONTRASENA_SEGURA
+REPLICATION_PASSWORD=OTRA_CONTRASENA_SEGURA
+```
+
+El archivo `.env` contiene información sensible y no debe publicarse en GitHub.
+
+El instalador automático genera las credenciales cuando no existe dicho archivo.
+
+---
+
+## 7. Base de datos
+
+**Nombre de la base de datos:**
+
+```text
+ecommerce
+```
+
+**Conexión principal:**
+
+```text
+Host: 127.0.0.1
+Puerto: 5440
+Base de datos: ecommerce
+Usuario: postgres
+```
+
+La contraseña corresponde a `POSTGRES_PASSWORD`, definida en el archivo `.env`.
+
+### Scripts SQL
+
+Los archivos se encuentran en:
+
+```text
+01_BaseDatos/
+```
+
+Orden de ejecución:
+
+1. `01_ddl.sql`
+2. `02_seed.sql`
+3. `02_triggers.sql`
+4. `03_views.sql`
+5. `04_materialized_views.sql`
+6. `05_procedures.sql`
+7. `10_plan_antes.sql`
+8. `06_indexes.sql`
+9. `11_plan_despues.sql`
+10. `07_security.sql`
+11. `08_pruebas_requerimientos.sql`
+
+La instalación automática respeta este orden.
+
+---
+
+## 8. Requerimientos implementados
+
+| Número | Requerimiento | Mecanismo |
+|--------|---------------|-----------|
+| 1 | Auditoría de cambios de precios | Trigger |
+| 2 | Control automático de inventario | Trigger |
+| 3 | Historial de estados de pedidos | Trigger |
+| 4 | Resumen general de pedidos | View |
+| 5 | Resumen de clientes | View |
+| 6 | Estado de inventario | View |
+| 7 | Consolidado diario de ventas | Materialized View |
+| 8 | Rendimiento de productos | Materialized View |
+| 9 | Registro transaccional de ventas | Stored Procedure |
+| 10 | Optimización de consultas | Index y Execution Plan |
+| 11 | Seguridad y control de acceso | Users, Roles y Privileges |
+| 12 | Base de datos espejo | Replicación PostgreSQL |
+| 13 | Respaldo completo | pg_dump |
+| 14 | Recuperación de información | pg_restore |
+| 15 | Dashboard gerencial | Power BI |
+
+La existencia de los archivos no sustituye las pruebas funcionales correspondientes.
+
+---
+
+## 9. Verificación automática
+
+Ejecutar:
+
+```bash
 bash scripts/verificar.sh
 ```
 
-El instalador crea un archivo `.env` privado con claves aleatorias, inicia las dos instancias PostgreSQL, espera a que esten saludables, ejecuta los SQL en el orden previsto y realiza las primeras comprobaciones. No ejecutar `instalar.sh` dos veces en los mismos volumenes: los scripts base estan disenados para instalarse en una base nueva. Si es necesario repetir la prueba, crear un entorno Docker aislado y limpio; no borrar datos del entorno del equipo.
+Este script comprueba:
 
-Los servicios deben estar disponibles en `127.0.0.1:5440` (principal) y `127.0.0.1:5433` (replica). Si esos puertos ya estan ocupados, cambiar el puerto publicado en `docker-compose.yml` antes de iniciar.
+- Estado de los contenedores.
+- Existencia de clientes.
+- Existencia de productos.
+- Existencia de pedidos.
+- Estado de replicación.
+- Funcionamiento de las consultas de verificación.
 
-El archivo `.env` no se versiona ni debe publicarse. El archivo `.env.example` muestra las variables requeridas.
+Los resultados deben revisarse para confirmar que las operaciones se realizaron correctamente.
 
-Para realizar un respaldo actualizado:
+---
+
+## 10. Verificación de replicación
+
+La infraestructura utiliza replicación física de PostgreSQL.
+
+### Comprobar el servidor principal
+
+```bash
+docker compose exec postgres_primary psql -U postgres -d ecommerce -c "SELECT state, sync_state FROM pg_stat_replication;"
+```
+
+Resultado esperado:
+
+```text
+state
+---------
+streaming
+```
+
+### Comprobar la instancia réplica
+
+```bash
+docker compose exec postgres_replica psql -U postgres -d ecommerce -c "SELECT pg_is_in_recovery();"
+```
+
+Resultado esperado:
+
+```text
+pg_is_in_recovery
+----------------
+t
+```
+
+La replicación debe verificarse adicionalmente mediante operaciones INSERT, UPDATE y DELETE realizadas sobre la instancia principal.
+
+La réplica debe reflejar los cambios realizados.
+
+---
+
+## 11. Seguridad y privilegios
+
+El sistema contempla tres perfiles principales:
+
+### db_admin
+
+Usuario destinado a tareas administrativas de la base de datos.
+
+### ecommerce_app
+
+Usuario utilizado para operaciones de la plataforma de comercio electrónico.
+
+### bi_analyst
+
+Usuario destinado a consultas analíticas.
+
+Debe disponer de permisos de lectura sobre las vistas autorizadas, sin modificar directamente la información transaccional.
+
+Las contraseñas de estos usuarios deben establecerse después de ejecutar el script de seguridad.
+
+El proyecto utiliza el principio de mínimo privilegio.
+
+---
+
+## 12. Respaldo de la base de datos
+
+Para generar un respaldo actualizado:
 
 ```bash
 bash scripts/backup.sh
 ```
 
-**Limitaciones de la ejecucion automatica:** la comprobacion de presencia de un objeto SQL no sustituye sus pruebas funcionales (por ejemplo, una venta fallida y el rollback). El archivo `.pbix` requiere una instalacion compatible de Power BI Desktop para su inspeccion visual. No se han ejecutado contenedores en el entorno donde se preparo esta version, por lo que deben realizarse pruebas de integracion en Docker antes de la entrega final.
+El respaldo se almacena en:
 
-**Contenido historico:** las carpetas `Proyecto_Base_de_Datos_II_Marcos_Monzon/` y `Proyecto_Base_de_Datos_II_Ashly_Englenton/` corresponden a versiones previas. El agente debe ejecutar solo los scripts de la raiz, `scripts/` y `01_BaseDatos/`, que usan PostgreSQL.
+```text
+03_Backup/backup_actual.dump
+```
 
-Universidad Panamericana. PostgreSQL 16, Docker Compose, DBeaver y Power BI.
+El repositorio también incluye un respaldo original del proyecto.
 
-Participantes: Marcos Monzon y Ashly (completar apellido y ambos carnes antes de entregar).
+Las instrucciones de recuperación se encuentran en:
 
-## Arquitectura
+```text
+03_Backup/instrucciones_restore.txt
+```
 
-Cliente SQL / DBeaver / Power BI -> PostgreSQL principal (localhost:5440) -> replicacion fisica WAL -> PostgreSQL replica (localhost:5433, solo lectura).
+---
 
-## Requisitos
+## 13. Recuperación de información
 
-Docker Desktop con Docker Compose V2, Power BI Desktop para abrir el archivo `.pbix`, DBeaver opcional. No se requiere PostgreSQL instalado localmente.
+La restauración debe ejecutarse en un ambiente controlado.
 
-## Primer arranque
+El procedimiento consiste en:
 
-1. En esta misma carpeta, copiar `.env.example` a `.env` y cambiar las dos claves por contrasenas distintas, sin espacios, dos puntos ni simbolos especiales. No compartir `.env` ni subirlo a repositorios publicos.
-2. Ejecutar `docker compose up -d`.
-3. Ejecutar `docker compose ps` y esperar a que ambos contenedores esten en estado healthy.
-4. Conectar DBeaver: tipo PostgreSQL, host `127.0.0.1`, puerto `5440`, base `ecommerce`, usuario `postgres`, clave indicada en `.env`.
-5. Ejecutar cada script del listado siguiente en el orden indicado.
+1. Generar un respaldo.
+2. Registrar las cantidades de clientes, productos y pedidos.
+3. Preparar una base de datos de prueba.
+4. Simular una pérdida de información en esa base.
+5. Comprobar la pérdida.
+6. Restaurar la información.
+7. Comparar las cantidades recuperadas.
 
-## Orden de scripts en una base nueva
+La demostración no debe eliminar información de la base de datos principal.
 
-1. `01_BaseDatos/01_ddl.sql`
-2. `01_BaseDatos/02_seed.sql`
-3. `01_BaseDatos/02_triggers.sql`
-4. `01_BaseDatos/03_views.sql`
-5. `01_BaseDatos/04_materialized_views.sql`
-6. `01_BaseDatos/05_procedures.sql`
-7. `01_BaseDatos/10_plan_antes.sql` y guardar su plan de ejecucion y tiempo.
-8. `01_BaseDatos/06_indexes.sql`
-9. `01_BaseDatos/11_plan_despues.sql` y comparar el plan y tiempo con el anterior.
-10. `01_BaseDatos/07_security.sql`
-11. `01_BaseDatos/08_pruebas_requerimientos.sql`
+---
 
-`04_validaciones_materialized_views.sql` es opcional: puede ejecutarse tras crear las vistas materializadas. La carga de datos semilla debe efectuarse ANTES de activar los triggers de venta, pues corresponde al estado historico de los pedidos, no a ventas nuevas.
+## 14. Dashboard en Power BI
 
-## Usuarios para evaluacion
+El archivo del dashboard se encuentra en:
 
-El script crea `db_admin`, `ecommerce_app` y `bi_analyst`, inicialmente sin contrasena para impedir accesos inseguros. Tras ejecutar la seguridad, iniciar una sesion SQL como postgres y asignar claves privadas utilizando sentencias `ALTER ROLE db_admin PASSWORD 'CLAVE_NUEVA';`, `ALTER ROLE ecommerce_app PASSWORD 'CLAVE_NUEVA';` y `ALTER ROLE bi_analyst PASSWORD 'CLAVE_NUEVA';`. No reutilizar las claves de ejemplo. El usuario `bi_analyst` solo debe consultar las vistas autorizadas.
+```text
+04_PowerBI/dashboard.pbix
+```
 
-## Verificacion de replicacion
+El requerimiento contempla cinco indicadores:
 
-En la conexion principal ejecutar `SELECT * FROM pg_stat_replication;` (debe aparecer una replica en estado `streaming`). En la conexion con puerto `5433`, ejecutar `SELECT pg_is_in_recovery();` (debe retornar `true`). Las operaciones INSERT/UPDATE/DELETE deben ejecutarse unicamente sobre la principal y consultarse desde la replica, preferiblemente con una tabla de prueba propia para evitar modificar datos del proyecto.
+1. Ventas totales.
+2. Cantidad total de pedidos.
+3. Ticket promedio.
+4. Cantidad de clientes con compras.
+5. Cantidad total de unidades vendidas.
 
-## Backup y restauracion
+También contempla las siguientes visualizaciones:
 
-Ver el archivo `03_Backup/instrucciones_restore.txt`. Incluye el backup heredado de la version anterior. Generar un backup actualizado despues de todas las correcciones y probarlo en la base de prueba `ecommerce_restore`.
+- Ventas por mes.
+- Evolución de ventas.
+- Ventas por categoría.
+- Top 10 productos por monto vendido.
+- Top 10 clientes por monto comprado.
 
-## Power BI
+Filtros requeridos:
 
-Abrir `04_PowerBI/dashboard.pbix`. Para la demostracion final se deben verificar las cinco metricas, cinco graficos y tres filtros del requerimiento 15, y cambiar la conexion al usuario `bi_analyst`. El PBIX entregado se conserva tal como fue proporcionado por el equipo: no se certifica el cumplimiento total del requisito 15.
+- Rango de fechas.
+- Categoría.
+- Producto.
 
-## Detener infraestructura
+El archivo PBIX se conserva como parte del proyecto. Su cumplimiento completo debe verificarse en Power BI Desktop antes de la evaluación final.
 
-Ejecutar `docker compose down` para detener sin borrar datos. No usar `docker compose down -v` sin un respaldo verificado: elimina los volumenes de la base y la replica.
+---
 
-## Consideraciones importantes
+## 15. Estructura del proyecto
 
-El archivo `.env` no forma parte del ZIP por seguridad. Debe crearse desde el ejemplo antes de iniciar. PostgreSQL replica se inicializa automaticamente mediante `pg_basebackup` al crear su volumen por primera vez; en arranques posteriores continua desde los datos persistidos.
+```text
+Proyecto-Final---Base-de-Datos/
+|
+|-- README.md
+|-- README.pdf
+|-- docker-compose.yml
+|-- .env.example
+|-- .gitignore
+|
+|-- docker/
+|   |-- primary/
+|   |-- replica/
+|
+|-- 01_BaseDatos/
+|   |-- 01_ddl.sql
+|   |-- 02_seed.sql
+|   |-- 02_triggers.sql
+|   |-- 03_views.sql
+|   |-- 04_materialized_views.sql
+|   |-- 05_procedures.sql
+|   |-- 06_indexes.sql
+|   |-- 07_security.sql
+|   |-- 08_pruebas_requerimientos.sql
+|   |-- 10_plan_antes.sql
+|   |-- 11_plan_despues.sql
+|
+|-- 02_Replicacion/
+|   |-- configuracion_replica.pdf
+|
+|-- 03_Backup/
+|   |-- backup_original.dump
+|   |-- instrucciones_restore.txt
+|
+|-- 04_PowerBI/
+|   |-- dashboard.pbix
+|
+|-- scripts/
+|   |-- instalar.sh
+|   |-- verificar.sh
+|   |-- backup.sh
+```
 
-La cuenta `db_admin` tiene privilegios administrativos dentro de la base y los objetos existentes. Para tareas de administracion global de PostgreSQL, se mantiene la cuenta `postgres`.
+---
 
-No se ha realizado una prueba de arranque real de Docker en el entorno de preparacion del ZIP. Antes de entregar al docente se requiere probar en Docker Desktop desde una carpeta nueva y capturar los resultados.
+## 16. Consideraciones para la evaluación automática
+
+El proyecto está organizado para facilitar su ejecución mediante un agente de inteligencia artificial con acceso a Git, Docker y una terminal compatible.
+
+El agente deberá:
+
+1. Clonar el repositorio.
+2. Leer este README.
+3. Comprobar los requisitos previos.
+4. Ejecutar el instalador.
+5. Verificar las dos instancias PostgreSQL.
+6. Ejecutar las pruebas disponibles.
+7. Comprobar el funcionamiento de los requerimientos.
+8. Generar y verificar un respaldo.
+9. Ejecutar una restauración controlada.
+10. Documentar los resultados obtenidos.
+
+**Estado de validación:** los archivos fueron organizados y revisados estáticamente. La instalación completa debe probarse en un ambiente Docker limpio antes de afirmar que todos los requerimientos funcionan correctamente.
+
+---
+
+## 17. Autores
+
+**Universidad Panamericana**
+
+Proyecto Final de Base de Datos II
+
+**Integrantes:**
+
+- Marcos Monzón
+- Ashly Englenton
+
+**Tecnologías utilizadas:**
+
+PostgreSQL 16, Docker, Docker Compose, SQL, DBeaver y Power BI.
